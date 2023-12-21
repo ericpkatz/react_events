@@ -20,9 +20,48 @@ import React from 'react';
 import { createRoot } from 'react-dom/client';
 
 function App() {
+  const [events, setEvents] = React.useState([]);
+  const [id, setId] = React.useState(window.location.hash.slice(1)*1);
+
+  React.useEffect(function(){
+    async function fetchEvents(){
+      const response = await fetch('https://fsa-crud-2aa9294fe819.herokuapp.com/api/2309_ftb_et_web_am/events');
+      const json = await response.json();
+      setEvents(json.data);
+    }
+    fetchEvents();
+    window.addEventListener('hashchange', function(){
+      setId(window.location.hash.slice(1)*1);
+    });
+  }, []);
+
+  let filtered = events;
+  if(id){
+    filtered = events.filter(function(event){
+      return event.id === id;
+    });
+  }
+
   return (
     <div>
-      <h1>React Events</h1>
+      <h1>React Events { events.length }</h1>
+      <a href='#'>Show All Events</a>
+      <ul>
+        {
+          filtered.map(function(event){
+            return (
+              <li key={event.id}>
+                <a href={`#${event.id}`}>
+                  { event.name }
+                </a>
+                <p>
+                  { event.location }
+                </p>
+              </li>
+            );
+          })
+        }
+      </ul>
     </div>
   );
 }
